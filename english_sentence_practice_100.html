@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Sentence Practice - 100 Questions</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f4f7fb;
+        color: #222;
+    }
+    .container {
+        max-width: 950px;
+        margin: 25px auto;
+        padding: 20px;
+    }
+    h1 { margin-bottom: 5px; }
+    .intro { color: #555; margin-top: 0; }
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: white;
+        padding: 12px 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,.08);
+        margin-bottom: 18px;
+    }
+    .progress {
+        height: 10px;
+        background: #e1e6ee;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    .progress > div {
+        height: 100%;
+        width: 0%;
+        background: #4b78d1;
+        transition: width .2s;
+    }
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .number {
+        font-weight: bold;
+        color: #4b78d1;
+        margin-bottom: 12px;
+    }
+    .story {
+        font-size: 19px;
+        line-height: 1.9;
+    }
+    input.blank {
+        display: inline-block;
+        width: 135px;
+        max-width: 35vw;
+        height: 34px;
+        border: 1px solid #777;
+        border-bottom: 3px solid #555;
+        border-radius: 4px;
+        outline: none;
+        font-size: 18px;
+        padding: 3px 7px;
+        background: #fffde7;
+        color: #111;
+        text-align: center;
+        cursor: text;
+        caret-color: #111;
+        pointer-events: auto;
+        user-select: text;
+        -webkit-user-select: text;
+    }
+    input.blank.correct {
+        border-bottom-color: #218739;
+        background: #e9f8ec;
+    }
+    input.blank.wrong {
+        border-bottom-color: #d32f2f;
+        background: #ffebee;
+    }
+    .answer {
+        display: inline-block;
+        color: #218739;
+        font-weight: bold;
+        font-size: 15px;
+        margin-left: 5px;
+    }
+    .hint {
+        margin-top: 18px;
+        color: #666;
+        font-size: 14px;
+    }
+    .buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 22px;
+    }
+    button {
+        border: none;
+        border-radius: 8px;
+        padding: 11px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background: #4b78d1;
+        color: white;
+    }
+    button:hover { opacity: .9; }
+    button.secondary { background: #687386; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .score {
+        text-align: center;
+        margin-top: 12px;
+        font-weight: bold;
+    }
+    .finished {
+        display: none;
+        text-align: center;
+        background: white;
+        border-radius: 12px;
+        padding: 35px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .finished h2 { color: #218739; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>English Sentence Practice</h1>
+    <p class="intro">Fill in each blank with the word that makes the sentence correct. Type your answer and press Enter or click outside the box.</p>
+
+    <div class="topbar">
+        <strong id="progressText">Question 1 of 100</strong>
+        <div class="progress"><div id="progressBar"></div></div>
+        <div class="score" id="scoreText">Correct: 0 / 0</div>
+    </div>
+
+    <div id="quizArea">
+        <div class="card">
+            <div class="number" id="questionNumber"></div>
+            <div class="story" id="story"></div>
+            <div class="hint">Tip: Read the whole paragraph before deciding which word fits.</div>
+            <div class="buttons">
+                <button class="secondary" id="prevBtn" onclick="previousQuestion()">Previous</button>
+                <button id="nextBtn" onclick="nextQuestion()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="finished" id="finished">
+        <h2>Well done!</h2>
+        <p id="finalScore"></p>
+        <button onclick="restartQuiz()">Start Again</button>
+    </div>
+</div>
+
+<script>
+const questions = [
+["Ravi is a young boy who lives in a small village. He ...... to school every morning with his sister. They ...... their lunch in a small bag.",["walks","carry"]],
+["Mahatma Gandhi ...... born in India. He was ...... freedom fighter who worked for India's independence from the ...... .",["was","a","British"]],
+["My mother ...... breakfast for the family every morning. She usually ...... bread, eggs and fruit.",["makes","serves"]],
+["Yesterday, we ...... to the park because the weather ...... pleasant.",["went","was"]],
+["There ...... three books on the table. One of them ...... a story about a brave king.",["are","is"]],
+["An elephant is a very large animal. It ...... four strong legs and ...... a long trunk.",["has","has"]],
+["Meena ...... reading a book when her brother ...... into the room.",["was","came"]],
+["The sun ...... in the east and ...... in the west.",["rises","sets"]],
+["I have a pet dog named Bruno. He ...... very friendly and ...... to play with a ball.",["is","likes"]],
+["We ...... our homework before we ...... out to play.",["finish","go"]],
+["Arjun forgot his umbrella, so he ...... wet when he ...... home.",["got","reached"]],
+["The teacher ...... the students to open their books. Everyone ...... quietly.",["asked","listened"]],
+["My father ...... to work by bus because his office ...... far from our house.",["goes","is"]],
+["There is a mango tree behind our house. It ...... many sweet mangoes every summer.",["gives"]],
+["Priya ...... a glass of water because she ...... thirsty after running.",["drank","was"]],
+["The little bird ...... on the branch and ...... a beautiful song.",["sat","sang"]],
+["We should ...... our elders and ...... kind to everyone.",["respect","be"]],
+["Rahul ...... his room every Sunday. He ...... his books neatly on the shelf.",["cleans","keeps"]],
+["Last Sunday, my family ...... a picnic near a lake. We ...... sandwiches and fruit.",["had","ate"]],
+["The baby ...... asleep while her mother ...... a story.",["fell","was reading"]],
+["A good student ...... carefully in class and ...... questions when something is difficult.",["listens","asks"]],
+["I ...... my keys this morning, but I ...... them under the sofa later.",["lost","found"]],
+["The children ...... football in the playground when it suddenly ...... to rain.",["were playing","started"]],
+["My grandmother ...... in a village when she was young. She ...... many interesting stories.",["lived","has"]],
+["The train ...... at six o'clock every morning. Many passengers ...... it to work.",["leaves","take"]],
+["If you ...... hard, you ...... improve your English.",["practice","will"]],
+["Kiran was hungry, so he ...... a sandwich and ...... a glass of milk.",["ate","drank"]],
+["The library ...... many interesting books. Students ...... there to read and study.",["has","go"]],
+["We ...... our grandparents last weekend. They ...... very happy to see us.",["visited","were"]],
+["The road was slippery because it ...... heavily during the night.",["rained"]],
+["My brother ...... taller than me, but I ...... older than him.",["is","am"]],
+["She ...... her teeth twice a day because she ...... to keep them healthy.",["brushes","wants"]],
+["There ...... a beautiful rainbow in the sky after the rain ...... .",["was","stopped"]],
+["The farmer ...... vegetables in his field. He ...... them every morning.",["grows","waters"]],
+["When I was five, I ...... afraid of dogs, but now I ...... them.",["was","like"]],
+["The boys ...... quietly because the baby ...... asleep.",["spoke","was"]],
+["Our school ...... a science exhibition next month. Many students ...... their projects.",["will have","will display"]],
+["The doctor ...... the patient carefully and ...... him some medicine.",["examined","gave"]],
+["We ...... not make noise in the classroom because the teacher ...... a lesson.",["should","is teaching"]],
+["My sister ...... a beautiful picture yesterday. She ...... it to our mother.",["drew","gave"]],
+["The cat ...... under the table because it ...... frightened by the loud noise.",["hid","was"]],
+["I ...... never ...... such a beautiful waterfall before.",["have","seen"]],
+["The children ...... excited because they ...... going on a school trip the next day.",["were","were"]],
+["A bird ...... into our house yesterday. We ...... the window so it could fly out.",["flew","opened"]],
+["You ...... drink plenty of water when the weather ...... hot.",["should","is"]],
+["The old man ...... slowly because his legs ...... weak.",["walked","were"]],
+["My friend ...... me a present on my birthday. I ...... very happy.",["gave","was"]],
+["The stars ...... brightly in the sky while we ...... outside.",["shone","sat"]],
+["Sita ...... her homework before she ...... television.",["finished","watched"]],
+["We ...... to the museum last Friday and ...... many old objects.",["went","saw"]],
+["The teacher said that honesty ...... the best policy. Everyone ...... carefully.",["is","listened"]],
+["My uncle ...... in Bangalore for ten years. He ...... the city very much.",["has lived","likes"]],
+["The dog ...... loudly when someone ...... the gate.",["barked","opened"]],
+["I ...... my friend yesterday because I ...... help with my homework.",["called","needed"]],
+["The shopkeeper ...... the customer politely and ...... him the correct change.",["served","gave"]],
+["There ...... many stars in the sky last night, but there ...... no moon.",["were","was"]],
+["We ...... wear a helmet when we ...... a bicycle.",["should","ride"]],
+["The girl ...... the glass carefully because it ...... very fragile.",["carried","was"]],
+["My parents ...... dinner when I ...... home from school.",["were having","came"]],
+["The horse ...... very fast and ...... the race.",["ran","won"]],
+["I ...... to learn English because it ...... useful in many countries.",["want","is"]],
+["The baby ...... crying because she ...... hungry.",["was","was"]],
+["The farmer ...... early every morning and ...... to the fields.",["wakes","goes"]],
+["We ...... our classroom yesterday. It ...... much cleaner afterwards.",["cleaned","looked"]],
+["The boy ...... his friend the truth because he ...... to be honest.",["told","wanted"]],
+["My mother ...... a cake yesterday. The cake ...... delicious.",["baked","was"]],
+["When the bell ...... , the students ...... the classroom.",["rang","entered"]],
+["I ...... a letter to my cousin last week. She ...... me a reply yesterday.",["wrote","sent"]],
+["The river ...... through the village and ...... the fields with water.",["flows","supplies"]],
+["We ...... our shoes before entering the house. This ...... a good habit.",["remove","is"]],
+["The sun was very bright, so I ...... my sunglasses and ...... outside.",["wore","went"]],
+["The teacher ...... the difficult word and the students ...... it in their notebooks.",["explained","wrote"]],
+["My brother ...... chess every evening. He ...... quite good at it now.",["plays","is"]],
+["The children ...... hungry after the long walk, so their mother ...... them some food.",["were","gave"]],
+["I ...... never ...... a snake in the wild.",["have","seen"]],
+["The bus ...... late this morning, so we ...... for twenty minutes.",["arrived","waited"]],
+["A healthy person ...... enough sleep and ...... nutritious food.",["needs","eats"]],
+["The boy ...... the ball too hard, and it ...... over the wall.",["kicked","went"]],
+["We ...... a movie last night. It ...... very funny.",["watched","was"]],
+["The teacher asked me where I ...... my notebook. I ...... it on the desk.",["had kept","had left"]],
+["My father ...... the newspaper while my mother ...... tea.",["read","made"]],
+["The little girl ...... her mother because she ...... lost in the crowd.",["called","was"]],
+["The flowers ...... beautiful because we ...... them every day.",["look","water"]],
+["If you ...... regularly, your handwriting ...... improve.",["practice","will"]],
+["The students ...... their test before the teacher ...... the answers.",["completed","announced"]],
+["My friend ...... me yesterday and ...... me about his new school.",["visited","told"]],
+["The moon ...... around the Earth, while the Earth ...... around the Sun.",["moves","moves"]],
+["We ...... lunch before we ...... for the journey.",["had","left"]],
+["The boy ...... the door because he ...... a strange sound outside.",["closed","heard"]],
+["I ...... my homework now, so I ...... play later.",["am doing","can"]],
+["The gardener ...... the plants every morning and ...... the dry leaves.",["waters","removes"]],
+["The children ...... quietly while the principal ...... a speech.",["stood","gave"]],
+["She ...... her best friend for many years, and they ...... each other very well.",["has known","understand"]],
+["The rain ...... heavily yesterday, but today the sky ...... clear.",["fell","is"]],
+["We ...... the match because our team ...... very well.",["won","played"]],
+["My sister ...... to music when I ...... her room.",["was listening","entered"]],
+["The fisherman ...... early in the morning and ...... several fish.",["went","caught"]],
+["I ...... my bag at home, so I ...... back to get it.",["left","went"]],
+["The children ...... tired after the game, so they ...... down to rest.",["were","sat"]],
+["Tomorrow, we ...... visit our grandparents if the weather ...... good.",["will","is"]],
+["The teacher ...... us a story, and we ...... carefully.",["told","listened"]],
+["My brother ...... his bicycle every weekend because he ...... riding it.",["cleans","enjoys"]],
+["The girl ...... the answer correctly because she ...... the question carefully.",["gave","read"]],
+["We ...... proud when our school team ...... the competition.",["were","won"]]
+];
+
+let current = 0;
+let correctCount = 0;
+let answered = 0;
+let questionResults = new Array(questions.length).fill(false);
+
+function renderQuestion() {
+    const q = questions[current];
+    document.getElementById("questionNumber").textContent = "Question " + (current + 1);
+    document.getElementById("progressText").textContent = "Question " + (current + 1) + " of " + questions.length;
+    document.getElementById("progressBar").style.width = ((current + 1) / questions.length * 100) + "%";
+
+    let blankIndex = 0;
+    const parts = q[0].split("......");
+    let storyHTML = "";
+
+    parts.forEach(function(part, i) {
+        storyHTML += part;
+        if (i < parts.length - 1) {
+            storyHTML += '<input type="text" class="blank" data-index="' +
+                blankIndex +
+                '" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">';
+            blankIndex++;
+        }
+    });
+
+    document.getElementById("story").innerHTML = storyHTML;
+
+    const inputs = document.querySelectorAll("#story input.blank");
+
+    inputs.forEach(function(input) {
+        input.disabled = false;
+        input.readOnly = false;
+
+        input.addEventListener("input", function() {
+            checkAnswer(this);
+        });
+
+        input.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                checkAnswer(this);
+                e.preventDefault();
+            }
+        });
+    });
+
+    document.getElementById("prevBtn").disabled = current === 0;
+    document.getElementById("nextBtn").textContent =
+        current === questions.length - 1 ? "Finish" : "Next";
+    updateScore();
+}
+
+function normalize(s) {
+    return s.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function checkAnswer(input) {
+    if (!input.value.trim() || input.dataset.checked === "true") return;
+
+    const index = Number(input.dataset.index);
+    const expected = normalize(questions[current][1][index]);
+    const typed = normalize(input.value);
+
+    // While typing, don't reveal an answer or mark it wrong just because
+    // the child has not finished entering the word.
+    if (expected.startsWith(typed) && typed !== expected) {
+        input.classList.remove("wrong");
+        const oldAnswer = input.parentNode.querySelector(`[data-answer-for="${index}"]`);
+        if (oldAnswer) oldAnswer.remove();
+        return;
+    }
+
+    if (typed === expected) {
+        input.classList.remove("wrong");
+        input.classList.add("correct");
+        input.dataset.checked = "true";
+        input.disabled = true;
+        answered++;
+
+        const mark = document.createElement("span");
+        mark.className = "answer";
+        mark.textContent = "✓";
+        input.after(mark);
+
+        updateQuestionResult();
+    } else {
+        input.classList.remove("correct");
+        input.classList.add("wrong");
+
+        const oldAnswer = input.parentNode.querySelector(`[data-answer-for="${index}"]`);
+        if (!oldAnswer) {
+            const answer = document.createElement("span");
+            answer.className = "answer";
+            answer.dataset.answerFor = index;
+            answer.textContent = "→ " + questions[current][1][index];
+            input.after(answer);
+        }
+    }
+    updateScore();
+}
+
+function updateQuestionResult() {
+    const inputs = document.querySelectorAll("#story input.blank");
+    if (inputs.length === 0) return;
+
+    // A question counts as correct ONLY when every blank is correct.
+    const allCorrect = Array.from(inputs).every(function(input) {
+        return input.dataset.checked === "true";
+    });
+
+    // Count the question once, and never count a partially correct question.
+    if (allCorrect) {
+        questionResults[current] = true;
+    } else {
+        questionResults[current] = false;
+    }
+
+    correctCount = questionResults.filter(Boolean).length;
+}
+
+function updateScore() {
+    document.getElementById("scoreText").textContent = "Questions completely correct: " + correctCount + " / " + questions.length;
+}
+
+function nextQuestion() {
+    if (current < questions.length - 1) {
+        current++;
+        renderQuestion();
+        window.scrollTo({top: 0, behavior: "smooth"});
+    } else {
+        document.getElementById("quizArea").style.display = "none";
+        document.getElementById("finished").style.display = "block";
+        correctCount = questionResults.filter(Boolean).length;
+        document.getElementById("finalScore").innerHTML =
+            "<strong>Your final score: " + correctCount + " / " + questions.length + "</strong><br><br>" +
+            "A question is counted only when ALL of its blanks are correct.";
+    }
+}
+
+function previousQuestion() {
+    if (current > 0) {
+        current--;
+        renderQuestion();
+        window.scrollTo({top: 0, behavior: "smooth"});
+    }
+}
+
+function restartQuiz() {
+    current = 0;
+    correctCount = 0;
+    answered = 0;
+    questionResults = new Array(questions.length).fill(false);
+    document.getElementById("quizArea").style.display = "block";
+    document.getElementById("finished").style.display = "none";
+    renderQuestion();
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
